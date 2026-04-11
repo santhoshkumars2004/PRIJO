@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Story — PRIJO</title>
+  <meta name="description" content="Discover the story behind PRIJO. Born from the streets of India, we blend craftsmanship with global streetwear aesthetics.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+  <div class="page-loader" id="page-loader"><div class="loader-text">PRIJO</div></div>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar" id="announcement-bar">
+    <div class="announcement-track">
+      <span>FREE SHIPPING ABOVE ₹999 🛍️</span><span>NEW ARRIVALS JUST DROPPED ✨</span>
+      <span>10% OFF ON PREPAID ORDERS 💳</span><span>TRUSTED BY FASHION LOVERS ACROSS INDIA 🇮🇳</span>
+      <span>FREE SHIPPING ABOVE ₹999 🛍️</span><span>NEW ARRIVALS JUST DROPPED ✨</span>
+      <span>10% OFF ON PREPAID ORDERS 💳</span><span>TRUSTED BY FASHION LOVERS ACROSS INDIA 🇮🇳</span>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="main-nav" id="main-nav">
+    <a href="index.html" class="nav-logo">PRIJO</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="shop.html?cat=new">Collections</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav-icons">
+      <span class="nav-icon" id="search-icon" role="button" tabindex="0" aria-label="Search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </span>
+      <span class="nav-icon" id="wishlist-icon" role="button" tabindex="0" aria-label="Wishlist">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="icon-badge wishlist-badge">0</span>
+      </span>
+      <span class="nav-icon" id="cart-icon" role="button" tabindex="0" aria-label="Cart">
+        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="icon-badge cart-badge">0</span>
+      </span>
+      <div class="mobile-menu-btn" id="mobile-menu-btn" role="button" tabindex="0" aria-label="Menu"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay">
+    <div class="mobile-nav-logo">PRIJO</div>
+    <a href="index.html" class="mobile-nav-link">Home</a>
+    <a href="shop.html" class="mobile-nav-link">Shop</a>
+    <a href="shop.html?cat=new" class="mobile-nav-link">Collections</a>
+    <a href="about.html" class="mobile-nav-link">About</a>
+    <a href="contact.html" class="mobile-nav-link">Contact</a>
+  </div>
+
+  <!-- Overlays -->
+  <div class="search-overlay" id="search-overlay">
+    <button class="search-close" id="search-close">✕</button>
+    <div class="search-input-wrapper">
+      <input type="text" id="search-input" placeholder="Search for products..." autocomplete="off">
+      <div class="search-popular">
+        <span class="label">Popular:</span>
+        <a href="shop.html?cat=oversized">Oversized</a>
+        <a href="shop.html?cat=mens">Men's</a>
+        <a href="shop.html?cat=womens">Women's</a>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <div class="cart-sidebar" id="cart-sidebar">
+    <div class="sidebar-header"><h3>YOUR CART (0)</h3><button class="sidebar-close" id="cart-close">✕</button></div>
+    <div class="sidebar-body" id="cart-sidebar-body"></div>
+    <div class="sidebar-footer" id="cart-sidebar-footer" style="display:none;"></div>
+  </div>
+  <div class="wishlist-sidebar" id="wishlist-sidebar">
+    <div class="sidebar-header"><h3>YOUR WISHLIST (0)</h3><button class="sidebar-close" id="wishlist-close">✕</button></div>
+    <div class="sidebar-body" id="wishlist-sidebar-body"></div>
+  </div>
+
+  <!-- About Hero -->
+  <section class="about-hero">
+    <div class="about-hero-bg"></div>
+    <div class="about-hero-overlay"></div>
+    <div class="about-hero-content">
+      <h1>OUR STORY</h1>
+    </div>
+    <div class="hero-scroll-indicator" style="opacity:1; animation:none;">
+      <span>Scroll</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <!-- Who We Are -->
+  <section class="about-split">
+    <div class="about-image reveal-left">
+      <img src="assets/images/about_editorial.png" alt="PRIJO Workshop" loading="lazy">
+    </div>
+    <div class="about-content reveal-right">
+      <p class="about-label">Who We Are</p>
+      <h2 class="about-heading">WE ARE PRIJO</h2>
+      <p class="about-text">Born from the streets of India, PRIJO is a fashion label for the bold, the creative, and the unapologetically different. We blend Indian craftsmanship with global streetwear aesthetics to create pieces that speak without saying a word.</p>
+      <p class="about-text">Every stitch tells a story. Every piece is a canvas. We don't follow trends — we set them. From the vibrant lanes of Indian cities to the global fashion stage, PRIJO carries the spirit of fearless individuality.</p>
+    </div>
+  </section>
+
+  <!-- Our Values -->
+  <section class="about-values">
+    <div class="section-header">
+      <h2 class="section-title reveal" style="color:var(--color-text-dark);">OUR VALUES</h2>
+    </div>
+    <div class="values-grid">
+      <div class="value-card reveal">
+        <div class="value-icon">✨</div>
+        <h3 class="value-title">Quality First</h3>
+        <p class="value-desc">We source the finest fabrics and work with skilled artisans to create garments that look premium and last longer. Every piece is inspected for perfection before it reaches you.</p>
+      </div>
+      <div class="value-card reveal">
+        <div class="value-icon">🎨</div>
+        <h3 class="value-title">Culture Driven</h3>
+        <p class="value-desc">Our designs draw inspiration from India's rich cultural tapestry — from street art to architecture, music to cinema. We celebrate the beautiful chaos of Indian urban life.</p>
+      </div>
+      <div class="value-card reveal">
+        <div class="value-icon">🌍</div>
+        <h3 class="value-title">Sustainable Fashion</h3>
+        <p class="value-desc">We believe in responsible fashion. Organic materials, ethical production, minimal waste packaging — because looking good should never cost the planet.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- The Team -->
+  <section class="about-section" style="text-align:center;">
+    <div class="section-header">
+      <h2 class="section-title reveal">THE TEAM</h2>
+      <p class="section-subtitle reveal">The creative minds behind PRIJO</p>
+    </div>
+    <div class="team-grid">
+      <div class="team-card reveal">
+        <img src="assets/images/collection_mens.png" alt="Founder" class="team-card-img" loading="lazy">
+        <h4>Arjun Mehta</h4>
+        <p>Founder & Creative Director</p>
+      </div>
+      <div class="team-card reveal">
+        <img src="assets/images/collection_womens.png" alt="Co-Founder" class="team-card-img" loading="lazy">
+        <h4>Priya Sharma</h4>
+        <p>Co-Founder & Design Lead</p>
+      </div>
+      <div class="team-card reveal">
+        <img src="assets/images/collection_oversized.png" alt="Operations" class="team-card-img" loading="lazy">
+        <h4>Raj Patel</h4>
+        <p>Head of Operations</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Our Journey Timeline -->
+  <section class="about-section" style="background:var(--color-bg-dark);">
+    <div class="section-header">
+      <h2 class="section-title reveal">OUR JOURNEY</h2>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div>
+          <div class="timeline-year">2020</div>
+          <p class="timeline-desc">PRIJO was born — a small idea sketched on a napkin in a Mumbai café. Just two friends with a dream to redefine Indian streetwear.</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div>
+          <div class="timeline-year">2021</div>
+          <p class="timeline-desc">First collection launched: "Street Roots." 500 pieces sold out in 48 hours. The community noticed.</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div>
+          <div class="timeline-year">2022</div>
+          <p class="timeline-desc">Expanded to women's wear. Opened our first pop-up store in Delhi's Hauz Khas Village. Featured in Vogue India.</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div>
+          <div class="timeline-year">2023</div>
+          <p class="timeline-desc">Launched sustainable packaging initiative. Collaborated with 10 Indian artists. Crossed 50,000 orders milestone.</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div>
+          <div class="timeline-year">2024</div>
+          <p class="timeline-desc">Introduced oversized and gender-fluid collections. Partnered with local weavers in Jaipur and Varanasi for exclusive fabrics.</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div>
+          <div class="timeline-year">2025</div>
+          <p class="timeline-desc">Season 01 drops — our most ambitious collection yet. International shipping launched. The story continues...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="brand-statement" style="min-height:60vh;">
+    <div class="brand-statement-bg" id="brand-statement-bg"></div>
+    <div class="brand-statement-overlay"></div>
+    <div class="brand-statement-content">
+      <h2 class="brand-quote reveal">Ready to Wear<br><span class="accent">Your Story?</span></h2>
+      <a href="shop.html" class="btn-primary reveal" style="margin-top:24px;">SHOP NOW</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h3 class="footer-brand-name">PRIJO</h3>
+        <p class="footer-brand-tagline">Wear Your Story.</p>
+        <p class="footer-brand-desc">A modern Indian fashion label for the bold and the creative.</p>
+        <div class="footer-social-icons">
+          <a href="#" aria-label="Instagram">📸</a><a href="#" aria-label="Facebook">📘</a>
+          <a href="#" aria-label="YouTube">🎬</a><a href="#" aria-label="Pinterest">📌</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-col-title">Quick Links</h4>
+        <ul class="footer-links">
+          <li><a href="index.html">Home</a></li><li><a href="shop.html">Shop</a></li>
+          <li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-col-title">Support</h4>
+        <ul class="footer-links">
+          <li><a href="#">Shipping Policy</a></li><li><a href="#">Return Policy</a></li>
+          <li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-col-title">Connect</h4>
+        <div class="footer-contact-item"><span>✉️</span><span>hello@prijo.in</span></div>
+        <div class="footer-contact-item"><span>💬</span><span>WhatsApp Us</span></div>
+        <div class="footer-contact-item"><span>📸</span><span>@prijo.official</span></div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 PRIJO. All Rights Reserved.</p><p>Designed with ❤️ in India</p>
+    </div>
+  </footer>
+
+  <script src="js/cart.js"></script>
+  <script src="js/wishlist.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/animations.js"></script>
+</body>
+</html>

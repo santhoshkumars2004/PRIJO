@@ -1,0 +1,167 @@
+/* ============================================================
+   PRIJO — Animation Styles
+   GSAP + ScrollTrigger Enhancement Classes
+   ============================================================ */
+
+/* GPU acceleration hints */
+.hero-bg,
+.brand-statement-bg,
+.about-hero-bg,
+.marquee-track,
+.announcement-track {
+  will-change: transform;
+}
+
+/* Hero letter animations (initial state) */
+.hero-title .char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(80px);
+}
+
+/* Stagger card animations */
+.product-card,
+.collection-card,
+.trust-item,
+.value-card,
+.team-card,
+.timeline-item {
+  will-change: opacity, transform;
+}
+
+/* Smooth parallax container */
+.parallax-bg {
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Section reveal animations */
+[data-animate] {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+[data-animate="fade-up"] {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+[data-animate="fade-left"] {
+  opacity: 0;
+  transform: translateX(-40px);
+}
+
+[data-animate="fade-right"] {
+  opacity: 0;
+  transform: translateX(40px);
+}
+
+[data-animate="scale-up"] {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+/* Title line underline animation */
+.animate-underline::after {
+  width: 0;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-underline.animated::after {
+  width: 80px;
+}
+
+/* Brand statement scale animation */
+.brand-statement-content {
+  will-change: transform, opacity;
+}
+
+/* Scroll-triggered counter animation */
+.counter-value {
+  display: inline-block;
+}
+
+/* Smooth image zoom on scroll */
+.zoom-on-scroll {
+  overflow: hidden;
+}
+
+.zoom-on-scroll img {
+  transition: transform 1s ease;
+  will-change: transform;
+}
+
+/* Product card stagger reveal */
+.product-stagger {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* Custom easing curves */
+.ease-out-expo {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ease-in-out-expo {
+  transition-timing-function: cubic-bezier(0.87, 0, 0.13, 1);
+}
+
+/* Magnetic button effect */
+.magnetic-btn {
+  will-change: transform;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth scroll indicator */
+.scroll-indicator-line {
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(to bottom, var(--color-accent), transparent);
+  animation: scrollIndicator 2s ease-in-out infinite;
+}
+
+@keyframes scrollIndicator {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+/* Page transition */
+.page-transition {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg-dark);
+  z-index: 9999;
+  transform: scaleY(0);
+  transform-origin: bottom;
+}
+
+.page-transition.active {
+  animation: pageTransition 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes pageTransition {
+  0% { transform: scaleY(0); transform-origin: bottom; }
+  50% { transform: scaleY(1); transform-origin: bottom; }
+  50.01% { transform-origin: top; }
+  100% { transform: scaleY(0); transform-origin: top; }
+}
+
+/* Shimmer loading effect */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.02) 0%,
+    rgba(255,255,255,0.06) 50%,
+    rgba(255,255,255,0.02) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
