@@ -775,17 +775,7 @@ h1, h2, h3, h4, h5, h6 {
   transition: opacity 0.5s ease;
 }
 
-.product-image-wrapper .hover-img {
-  opacity: 0;
-}
 
-.product-card:hover .hover-img {
-  opacity: 1;
-}
-
-.product-card:hover .primary-img {
-  opacity: 0;
-}
 
 .product-badge {
   position: absolute;

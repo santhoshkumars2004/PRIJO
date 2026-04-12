@@ -6,7 +6,7 @@
 /* ---------- PRODUCT DATA ---------- */
 const products = [
   { id: 1, name: "TOKYO OVERSIZED TEE", price: 899, originalPrice: 1499, category: "mens", badge: "SALE",
-    image: "assets/images/product_tshirt_black.png", hoverImage: "assets/images/product_tshirt_beige.png",
+    image: "assets/images/product_tshirt_black.png", hoverImage: "assets/images/product_tshirt_black.png",
     description: "Premium cotton oversized tee with dropped shoulders and a relaxed fit. Perfect for layering or wearing solo.",
     sizes: ["XS","S","M","L","XL","XXL"], colors: ["#1a1a1a","#C9A96E","#4a4a4a"], rating: 4.3, reviews: 156 },
   { id: 2, name: "KYOTO LINEN PANTS", price: 1199, originalPrice: null, category: "mens", badge: "NEW",
@@ -421,7 +421,6 @@ function createProductCardHTML(product) {
         </button>
         <a href="product.html?id=${product.id}">
           <img class="primary-img" src="${product.image}" alt="${product.name}" loading="lazy">
-          <img class="hover-img" src="${product.hoverImage}" alt="${product.name} alternate" loading="lazy">
         </a>
         <div class="product-add-to-cart-overlay">
           <button onclick="event.stopPropagation(); Cart.addItem({id:${product.id},name:'${product.name.replace(/'/g, "\\'")}',price:${product.price},originalPrice:${product.originalPrice},image:'${product.image}',category:'${product.category}'})">ADD TO CART</button>
@@ -549,7 +548,7 @@ function initProductPage() {
   // Thumbnails
   const thumbs = el('gallery-thumbs');
   if (thumbs) {
-    const images = [product.image, product.hoverImage];
+    const images = [product.image];
     thumbs.innerHTML = images.map((img, i) => `
       <div class="gallery-thumb ${i === 0 ? 'active' : ''}" onclick="document.getElementById('gallery-main-img').src='${img}'; document.querySelectorAll('.gallery-thumb').forEach(t=>t.classList.remove('active')); this.classList.add('active');">
         <img src="${img}" alt="Thumbnail ${i + 1}" loading="lazy">
@@ -795,6 +794,16 @@ function initCheckoutPage() {
         state: document.getElementById('checkout-state')?.value || '',
         pincode: document.getElementById('checkout-pincode')?.value || ''
       };
+      
+      // Save globally for Admin and Tracking
+      const allOrders = JSON.parse(localStorage.getItem('prijo_all_orders')) || [];
+      // Add current date and default 'Processing' status
+      orderData.date = new Date().toISOString();
+      orderData.status = 'Processing';
+      orderData.paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || 'Online';
+      allOrders.push(orderData);
+      localStorage.setItem('prijo_all_orders', JSON.stringify(allOrders));
+
       sessionStorage.setItem('prijo_last_order', JSON.stringify(orderData));
       Cart.clear();
       window.location.href = 'payment.html';
@@ -877,6 +886,10 @@ function initPaymentPage() {
   if (el('order-name')) el('order-name').textContent = orderData.name || 'Customer';
   if (el('order-address-summary')) {
     el('order-address-summary').textContent = [orderData.address, orderData.city, orderData.state, orderData.pincode].filter(Boolean).join(', ') || 'Address on file';
+  }
+  
+  if (el('track-order-btn') && orderData.orderId) {
+    el('track-order-btn').href = `track.html?id=${orderData.orderId}`;
   }
 
   // Confetti
@@ -1000,6 +1013,52 @@ function renderWishlistPage() {
   }).join('');
 
   Wishlist.updateHeartIcons();
+}
+
+/* ============================================================
+   UPI DEEPLINK PAYMENT
+   ============================================================ */
+function startUPIPayment(app) {
+  if (Cart.getItems().length === 0) {
+    showToast('Your cart is empty');
+    return;
+  }
+  if (!validateCheckoutForm()) return;
+
+  const subtotal = Cart.getSubtotal();
+  const selectedDelivery = document.querySelector('.delivery-option.selected');
+  let shippingCost = 0;
+  if (selectedDelivery) {
+    const val = selectedDelivery.dataset.cost;
+    shippingCost = val === 'free' ? (subtotal >= 999 ? 0 : 49) : parseInt(val) || 0;
+  }
+  const tax = Math.round(subtotal * 0.05);
+  const total = subtotal + shippingCost + tax;
+
+  const upiId = '9003889006@ybl'; // Replace with actual UPI ID if different
+  const name = 'Johnson Elumalai';
+  const amount = total.toFixed(2);
+  const note = 'PRIJO Order';
+  
+  // Standard Intent
+  let url = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+
+  // Specific App Intents
+  if (app === 'gpay') {
+    url = `gpay://upi/pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+  } else if (app === 'phonepe') {
+    url = `phonepe://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+  } else if (app === 'paytm') {
+    url = `paytmmp://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+  }
+
+  // Attempt to open the UPI app
+  window.location.href = url;
+  
+  // Automatically "place order" in theory after opening the app
+  setTimeout(() => {
+    document.getElementById('checkout-form').dispatchEvent(new Event('submit'));
+  }, 1500);
 }
 
 /* ============================================================

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Order — PRIJO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=5">
+  <style>
+    .track-container {
+      padding: 120px 5% 80px;
+      min-height: 70vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--color-bg);
+      color: var(--color-text);
+    }
+    .track-card {
+      background: var(--color-bg-light);
+      padding: 40px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      border: 1px solid var(--color-border);
+    }
+    .track-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .track-header h2 {
+      font-family: var(--font-secondary);
+      font-weight: 500;
+      color: var(--color-text-dark);
+      font-size: 28px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-light);
+    }
+    .form-group input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid var(--color-border);
+      background: transparent;
+      color: var(--color-text);
+      font-family: var(--font-primary);
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+    .form-group input:focus {
+      border-color: var(--color-accent);
+    }
+    
+    .status-timeline {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 1px solid var(--color-border);
+      display: none; /* hidden by default */
+    }
+    
+    .timeline-step {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .timeline-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--color-border);
+      color: var(--color-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      margin-right: 16px;
+      z-index: 2;
+    }
+    
+    .timeline-step.completed .timeline-icon {
+      background: var(--color-accent);
+    }
+    
+    .timeline-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 14px;
+      top: 30px;
+      bottom: -20px;
+      width: 2px;
+      background: var(--color-border);
+      z-index: 1;
+    }
+    
+    .timeline-step.completed:not(:last-child)::after {
+      background: var(--color-accent);
+    }
+    
+    .timeline-content h4 {
+      font-size: 15px;
+      color: var(--color-text-dark);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    
+    .timeline-content p {
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+    
+    #track-error {
+      color: #EA4335;
+      font-size: 13px;
+      text-align: center;
+      margin-top: 10px;
+      display: none;
+    }
+    
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="main-nav" id="main-nav">
+    <a href="index.html" class="nav-logo">PRIJO</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+    <div class="nav-icons">
+       <!-- Simplified for tracking page -->
+       <a href="shop.html" style="font-size: 12px; font-weight: 500; text-decoration: underline;">RETURN TO SHOP</a>
+    </div>
+  </nav>
+
+  <div class="track-container">
+    <div class="track-card">
+      <div class="track-header">
+        <h2>DOORSTEP TRACKING</h2>
+        <p style="font-size: 13px; color: var(--color-text-muted); margin-top: 8px;">Enter your tracking ID to see order status.</p>
+      </div>
+      
+      <form id="track-form">
+        <div class="form-group">
+          <label for="order-id">Order ID</label>
+          <input type="text" id="order-id" placeholder="e.g. PRIJO-123456" required>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%;">FIND ORDER</button>
+        <p id="track-error">Order not found. Please verify your Order ID.</p>
+      </form>
+
+      <div class="status-timeline" id="status-timeline">
+        <h3 style="font-family: var(--font-secondary); margin-bottom: 24px; font-size: 20px;">Order <span id="display-order-id" style="color: var(--color-accent);"></span></h3>
+        
+        <div class="timeline-step" id="step-processing">
+          <div class="timeline-icon">✓</div>
+          <div class="timeline-content">
+            <h4>Order Processing</h4>
+            <p>Your order has been received and is being prepared.</p>
+          </div>
+        </div>
+        
+        <div class="timeline-step" id="step-shipped">
+          <div class="timeline-icon">📦</div>
+          <div class="timeline-content">
+            <h4>Shipped</h4>
+            <p>Your items have been handed over to our delivery partner.</p>
+          </div>
+        </div>
+        
+        <div class="timeline-step" id="step-delivered">
+          <div class="timeline-icon">📍</div>
+          <div class="timeline-content">
+            <h4>Delivered</h4>
+            <p>The package was successfully delivered.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Minimal Footer -->
+  <footer class="site-footer" style="margin-top: 0;">
+    <div class="footer-bottom">
+      <p>© 2025 PRIJO. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Pre-fill if passed via URL
+    const params = new URLSearchParams(window.location.search);
+    const passedId = params.get('id');
+    if (passedId) {
+      document.getElementById('order-id').value = passedId;
+    }
+
+    document.getElementById('track-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const searchId = document.getElementById('order-id').value.trim();
+      const allOrders = JSON.parse(localStorage.getItem('prijo_all_orders')) || [];
+      const orderError = document.getElementById('track-error');
+      const timeline = document.getElementById('status-timeline');
+      
+      // Reset
+      orderError.style.display = 'none';
+      timeline.style.display = 'none';
+      ['step-processing', 'step-shipped', 'step-delivered'].forEach(id => {
+        document.getElementById(id).classList.remove('completed');
+      });
+
+      const foundOrder = allOrders.find(o => o.orderId === searchId);
+
+      if (!foundOrder) {
+        orderError.style.display = 'block';
+        return;
+      }
+
+      // We found the order
+      timeline.style.display = 'block';
+      document.getElementById('display-order-id').textContent = foundOrder.orderId;
+
+      const status = foundOrder.status || 'Processing';
+      
+      if (status === 'Cancelled') {
+        document.getElementById('step-processing').classList.add('completed');
+        document.getElementById('step-processing').querySelector('h4').textContent = 'Order Cancelled';
+        document.getElementById('step-processing').querySelector('p').textContent = 'This order has been cancelled.';
+      } else {
+        document.getElementById('step-processing').classList.add('completed');
+        if (status === 'Shipped' || status === 'Delivered') {
+          document.getElementById('step-shipped').classList.add('completed');
+        }
+        if (status === 'Delivered') {
+          document.getElementById('step-delivered').classList.add('completed');
+        }
+      }
+    });
+
+    // Auto-search if ID is passed
+    if (passedId) {
+      document.getElementById('track-form').dispatchEvent(new Event('submit'));
+    }
+  </script>
+</body>
+</html>

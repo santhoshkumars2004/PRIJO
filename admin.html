@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — PRIJO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=5">
+  <style>
+    .admin-container {
+      padding: 120px 5% 60px;
+      min-height: 80vh;
+      background: var(--color-bg);
+      color: var(--color-text);
+    }
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 20px;
+    }
+    .admin-header h2 {
+      font-family: var(--font-secondary);
+      font-size: 32px;
+      color: var(--color-text-dark);
+      font-weight: 500;
+    }
+    .admin-card {
+      background: var(--color-bg-light);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .admin-table th, .admin-table td {
+      padding: 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .admin-table th {
+      font-family: var(--font-secondary);
+      font-size: 16px;
+      color: var(--color-text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .admin-table tr:hover {
+      background: rgba(201, 169, 110, 0.03);
+    }
+    .status-select {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-dark);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-family: var(--font-primary);
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    .status-select:focus {
+      border-color: var(--color-accent);
+      outline: none;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 80px 0;
+      color: var(--color-text-muted);
+      font-size: 16px;
+    }
+    .view-btn {
+      background: var(--color-accent);
+      color: var(--color-bg-dark);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+    }
+    .view-btn:hover {
+      opacity: 0.8;
+    }
+    
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-content {
+      background: var(--color-bg-light);
+      padding: 30px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+      border: 1px solid var(--color-border);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .modal-title {
+      font-family: var(--font-secondary);
+      font-size: 24px;
+      color: var(--color-text-dark);
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--color-text-muted);
+    }
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .modal-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px;
+      background: var(--color-bg);
+      border-radius: 8px;
+      border: 1px solid var(--color-border);
+    }
+    .modal-item img {
+      width: 60px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    .modal-item-details h4 {
+      font-size: 14px;
+      color: var(--color-text-dark);
+      margin-bottom: 4px;
+    }
+    .modal-item-details p {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-bottom: 2px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="main-nav" id="main-nav">
+    <a href="index.html" class="nav-logo">PRIJO</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+
+  <div class="admin-container">
+    <div class="admin-header">
+      <h2>Order Dashboard</h2>
+      <button class="btn-primary" onclick="clearOrders()" style="padding: 10px 20px; font-size: 12px;">CLEAR ALL ORDERS</button>
+    </div>
+    
+    <div class="admin-card">
+      <div style="overflow-x: auto;">
+        <table class="admin-table" id="admin-orders-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Total Amount</th>
+              <th>Payment</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="admin-table-body">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Items Modal -->
+  <div class="modal-overlay" id="items-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Order Items</h3>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body" id="modal-items-list">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentOrders = [];
+
+    function renderAdminOrders() {
+      currentOrders = JSON.parse(localStorage.getItem('prijo_all_orders')) || [];
+      const tbody = document.getElementById('admin-table-body');
+      
+      if (currentOrders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7">
+          <div class="empty-state">
+            <h3>No Orders Found</h3>
+            <p style="margin-top:8px;">When customers place orders, they will appear here.</p>
+          </div>
+        </td></tr>`;
+        return;
+      }
+
+      // Sort newest first
+      const reversedOrders = [...currentOrders].reverse();
+
+      tbody.innerHTML = reversedOrders.map((order, i) => {
+        const orderDate = new Date(order.date || Date.now()).toLocaleDateString('en-IN', {
+          day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit'
+        });
+        
+        const originalIndex = currentOrders.length - 1 - i;
+
+        return `
+          <tr>
+            <td style="font-weight: 600; color: var(--color-accent);">${order.orderId}</td>
+            <td style="color: var(--color-text-muted);">${orderDate}</td>
+            <td>
+              <div style="font-weight: 600; color: var(--color-text-dark);">${order.name}</div>
+              <div style="font-size: 12px; color: var(--color-text-muted);">${order.email}</div>
+            </td>
+            <td style="font-weight: 600; color: var(--color-text-dark);">₹${order.total}</td>
+            <td><span style="background: rgba(201, 169, 110, 0.1); color: var(--color-accent); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">${(order.paymentMethod || 'UPI').toUpperCase()}</span></td>
+            <td>
+              <select class="status-select" onchange="updateOrderStatus(${originalIndex}, this.value)">
+                <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
+                <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+              </select>
+            </td>
+            <td>
+               <button class="view-btn" onclick="openModal(${originalIndex})">View Items</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function updateOrderStatus(index, newStatus) {
+      if (currentOrders[index]) {
+        currentOrders[index].status = newStatus;
+        localStorage.setItem('prijo_all_orders', JSON.stringify(currentOrders));
+      }
+    }
+
+    function clearOrders() {
+      if(confirm('Are you sure you want to clear all order data from local storage? This cannot be undone.')) {
+        localStorage.removeItem('prijo_all_orders');
+        renderAdminOrders();
+      }
+    }
+
+    function openModal(index) {
+      const order = currentOrders[index];
+      if (!order) return;
+      
+      const modalList = document.getElementById('modal-items-list');
+      
+      if (!order.items || order.items.length === 0) {
+        modalList.innerHTML = '<p style="text-align:center; color:var(--color-text-muted);">No items found in this order.</p>';
+      } else {
+        modalList.innerHTML = order.items.map(item => `
+          <div class="modal-item">
+            <img src="${item.image}" alt="${item.name}">
+            <div class="modal-item-details">
+              <h4>${item.name}</h4>
+              <p>Size: ${item.size}</p>
+              <p>Qty: ${item.qty}</p>
+              <p style="font-weight:600; color:var(--color-text-dark); margin-top:4px;">₹${item.price}</p>
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      document.getElementById('items-modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('items-modal').classList.remove('active');
+    }
+    
+    // Close modal if clicking outside
+    document.getElementById('items-modal').addEventListener('click', function(e) {
+      if(e.target === this) closeModal();
+    });
+
+    // Init
+    renderAdminOrders();
+  </script>
+</body>
+</html>
