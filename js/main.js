@@ -431,7 +431,10 @@ function createProductCardHTML(product) {
         <p class="product-name"><a href="product.html?id=${product.id}">${product.name}</a></p>
         <div class="product-price">
           <span class="current">${formatPrice(product.price)}</span>
-          ${product.originalPrice ? `<span class="original">${formatPrice(product.originalPrice)}</span>` : ''}
+          ${product.originalPrice ? `
+            <span class="original">${formatPrice(product.originalPrice)}</span>
+            <span class="discount-pct">${Math.round((1 - product.price / product.originalPrice) * 100)}% OFF</span>
+          ` : ''}
         </div>
       </div>
     </div>
