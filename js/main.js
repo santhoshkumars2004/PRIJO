@@ -1035,30 +1035,30 @@ function startUPIPayment(app) {
   const tax = Math.round(subtotal * 0.05);
   const total = subtotal + shippingCost + tax;
 
-  const upiId = '9003889006@ybl'; // Replace with actual UPI ID if different
+  const basePhone = '6383480254';
   const name = 'Johnson Elumalai';
   const amount = total.toFixed(2);
   const note = 'PRIJO Order';
   
-  // Standard Intent
-  let url = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
-
   // Specific App Intents
+  let url = `upi://pay?pa=${basePhone}@ybl&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+  
   if (app === 'gpay') {
-    url = `gpay://upi/pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+    url = `gpay://upi/pay?pa=${basePhone}@okaxis&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
   } else if (app === 'phonepe') {
-    url = `phonepe://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+    url = `phonepe://pay?pa=${basePhone}@ybl&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
   } else if (app === 'paytm') {
-    url = `paytmmp://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+    url = `paytmmp://pay?pa=${basePhone}@paytm&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
   }
 
   // Attempt to open the UPI app
   window.location.href = url;
   
-  // Automatically "place order" in theory after opening the app
-  setTimeout(() => {
-    document.getElementById('checkout-form').dispatchEvent(new Event('submit'));
-  }, 1500);
+  // Show the confirmation box so the user can manually declare they've paid
+  const confirmBox = document.getElementById('upi-confirmation-box');
+  if(confirmBox) {
+    confirmBox.style.display = 'block';
+  }
 }
 
 /* ============================================================

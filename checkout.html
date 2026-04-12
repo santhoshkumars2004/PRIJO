@@ -214,6 +214,11 @@
                   </button>
                 </div>
                 <p style="font-size:12px; color:var(--color-text-muted); margin-top:16px;">Payments are directed to Mr Johnson Elumalai</p>
+                
+                <div id="upi-confirmation-box" style="display:none; margin-top: 16px; padding: 12px; border-radius: 8px; background: rgba(201, 169, 110, 0.1); border: 1px dashed var(--color-accent);">
+                  <p style="font-size:13px; font-weight:600; color:var(--color-text); margin-bottom:12px;">Did you complete the payment?</p>
+                  <button type="button" class="btn-primary" style="width:100%; padding: 10px; font-size:12px;" onclick="document.getElementById('checkout-form').dispatchEvent(new Event('submit'))">YES, I HAVE PAID</button>
+                </div>
               </div>
             </div>
           </div>
@@ -344,7 +349,7 @@
 
   <script src="js/cart.js"></script>
   <script src="js/wishlist.js"></script>
-  <script src="js/main.js?v=6"></script>
+  <script src="js/main.js?v=8"></script>
   <script src="js/animations.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => { initCheckoutPage(); });</script>
 </body>
