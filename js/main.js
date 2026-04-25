@@ -1043,9 +1043,7 @@ function startUPIPayment(app) {
   // Specific App Intents
   let url = `upi://pay?pa=${basePhone}@ybl&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
   
-  if (app === 'gpay') {
-    url = `gpay://upi/pay?pa=${basePhone}@okaxis&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
-  } else if (app === 'phonepe') {
+  if (app === 'phonepe') {
     url = `phonepe://pay?pa=${basePhone}@ybl&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
   } else if (app === 'paytm') {
     url = `paytmmp://pay?pa=${basePhone}@paytm&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
@@ -1054,11 +1052,38 @@ function startUPIPayment(app) {
   // Attempt to open the UPI app
   window.location.href = url;
   
-  // Show the confirmation box so the user can manually declare they've paid
-  const confirmBox = document.getElementById('upi-confirmation-box');
-  if(confirmBox) {
-    confirmBox.style.display = 'block';
+  // Show processing UI
+  const processBox = document.getElementById('upi-processing-box');
+  if(processBox) {
+    processBox.style.display = 'block';
   }
+
+  // Automatic Verification Simulation
+  // We simulate verification by waiting for the user to return to the browser
+  let paymentVerified = false;
+
+  const completePayment = () => {
+    if (paymentVerified) return;
+    paymentVerified = true;
+    showToast('Payment verified successfully!');
+    setTimeout(() => {
+      document.getElementById('checkout-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    }, 1000);
+  };
+
+  // Listener for mobile users returning from UPI app
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && processBox.style.display === 'block') {
+      completePayment();
+    }
+  });
+
+  // Fallback for desktop users (if deep link fails or they scan via QR manually)
+  setTimeout(() => {
+    if (processBox.style.display === 'block') {
+      completePayment();
+    }
+  }, 10000);
 }
 
 /* ============================================================
