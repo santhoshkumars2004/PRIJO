@@ -4,10 +4,50 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard — PRIJO</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/img/icon-192.png">
+  <meta name="theme-color" content="#ffffff">
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script>
+    // Initialize Firebase early for auth check
+    firebase.initializeApp({
+      apiKey: "AIzaSyAUrHa_oYFnKH-kwBXO2w5kVYpEcIRWxOw",
+      authDomain: "prijo-60f29.firebaseapp.com",
+      projectId: "prijo-60f29",
+      storageBucket: "prijo-60f29.firebasestorage.app",
+      messagingSenderId: "181331902685",
+      appId: "1:181331902685:web:e270698b49a346a3695b34"
+    });
+
+    // Block unauthorized access
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = 'login.html';
+      } else {
+        // Show the page once authenticated
+        document.body.style.visibility = 'visible';
+      }
+    });
+
+    function logoutAdmin() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = 'login.html';
+      });
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=5">
+  <script src="js/firebase-config.js"></script>
   <style>
     .admin-container {
       padding: 120px 5% 60px;
@@ -26,7 +66,7 @@
     .admin-header h2 {
       font-family: var(--font-secondary);
       font-size: 32px;
-      color: var(--color-text-dark);
+      color: var(--color-text-light);
       font-weight: 500;
     }
     .admin-card {
@@ -60,7 +100,7 @@
     .status-select {
       background: var(--color-bg);
       border: 1px solid var(--color-border);
-      color: var(--color-text-dark);
+      color: var(--color-text-light);
       padding: 8px 12px;
       border-radius: 6px;
       font-family: var(--font-primary);
@@ -128,7 +168,7 @@
     .modal-title {
       font-family: var(--font-secondary);
       font-size: 24px;
-      color: var(--color-text-dark);
+      color: var(--color-text-light);
     }
     .modal-close {
       background: none;
@@ -159,7 +199,7 @@
     }
     .modal-item-details h4 {
       font-size: 14px;
-      color: var(--color-text-dark);
+      color: var(--color-text-light);
       margin-bottom: 4px;
     }
     .modal-item-details p {
@@ -167,9 +207,75 @@
       color: var(--color-text-muted);
       margin-bottom: 2px;
     }
+    
+    /* Tabs & Form Styles */
+    .admin-tabs {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 30px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .admin-tab {
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+    .admin-tab.active {
+      color: var(--color-text-light);
+      border-bottom-color: var(--color-accent);
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+    .form-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-light);
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 12px;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      font-family: var(--font-primary);
+      background: var(--color-bg);
+      color: var(--color-text);
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    .image-preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin-top: 10px;
+      display: none;
+      border: 1px solid var(--color-border);
+    }
   </style>
 </head>
-<body>
+<body style="visibility: hidden;">
   <!-- Navigation -->
   <nav class="main-nav" id="main-nav">
     <a href="index.html" class="nav-logo">PRIJO</a>
@@ -182,28 +288,120 @@
 
   <div class="admin-container">
     <div class="admin-header">
-      <h2>Order Dashboard</h2>
-      <button class="btn-primary" onclick="clearOrders()" style="padding: 10px 20px; font-size: 12px;">CLEAR ALL ORDERS</button>
+      <h2>Admin Dashboard</h2>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-primary" onclick="clearData()" style="padding: 10px 20px; font-size: 12px; background: #ff4d4f;">CLEAR ALL DATA</button>
+        <button class="btn-primary" onclick="logoutAdmin()" style="padding: 10px 20px; font-size: 12px;">LOGOUT</button>
+      </div>
+    </div>
+
+    <div class="admin-tabs">
+      <div class="admin-tab active" onclick="switchTab(event, 'orders')">Orders Management</div>
+      <div class="admin-tab" onclick="switchTab(event, 'products')">Products Management</div>
     </div>
     
-    <div class="admin-card">
-      <div style="overflow-x: auto;">
-        <table class="admin-table" id="admin-orders-table">
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Date</th>
-              <th>Customer</th>
-              <th>Total Amount</th>
-              <th>Payment</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="admin-table-body">
-            <!-- Populated by JS -->
-          </tbody>
-        </table>
+    <!-- ORDERS TAB -->
+    <div id="tab-orders" class="tab-content active">
+      <div class="admin-card">
+        <div style="overflow-x: auto;">
+          <table class="admin-table" id="admin-orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Total Amount</th>
+                <th>Payment</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="admin-table-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUCTS TAB -->
+    <div id="tab-products" class="tab-content">
+      <div class="admin-card" style="margin-bottom: 40px;">
+        <h3 style="margin-bottom: 20px; font-family: var(--font-secondary); font-size: 20px;">Add New Product</h3>
+        <form id="add-product-form" onsubmit="handleAddProduct(event)">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>Product Image</label>
+              <input type="file" id="product-image" accept="image/*" required onchange="previewImage(event)">
+              <img id="image-preview" class="image-preview" src="">
+            </div>
+            <div class="form-group full">
+              <label>Product Name</label>
+              <input type="text" id="product-name" required placeholder="e.g., PREMIUM COTTON HOODIE">
+            </div>
+            <div class="form-group">
+              <label>Current Price (₹)</label>
+              <input type="number" id="product-price" required placeholder="899">
+            </div>
+            <div class="form-group">
+              <label>Original Price (₹) (Optional)</label>
+              <input type="number" id="product-original-price" placeholder="1499">
+            </div>
+            <div class="form-group">
+              <label>Main Category</label>
+              <select id="product-category" required onchange="updateSubCategories()">
+                <option value="mens">Mens</option>
+                <option value="womens">Womens</option>
+                <option value="accessories">Accessories</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label style="display: flex; justify-content: space-between; align-items: center;">
+                Sub-Category
+                <button type="button" onclick="promptNewSubCategory()" style="background: none; border: none; color: var(--color-accent); font-size: 11px; font-weight: 700; cursor: pointer;">+ NEW</button>
+              </label>
+              <select id="product-sub-category" required>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Badge (Optional)</label>
+              <select id="product-badge">
+                <option value="">None</option>
+                <option value="NEW">NEW</option>
+                <option value="SALE">SALE</option>
+                <option value="TRENDING">TRENDING</option>
+              </select>
+            </div>
+            <div class="form-group full">
+              <label>Description</label>
+              <textarea id="product-desc" required placeholder="Describe the product..."></textarea>
+            </div>
+            <div class="form-group full">
+              <button type="submit" class="btn-primary" style="padding: 16px;">+ ADD PRODUCT TO SHOP</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="admin-card">
+        <h3 style="margin-bottom: 20px; font-family: var(--font-secondary); font-size: 20px;">Custom Products</h3>
+        <div style="overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Category</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="custom-products-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -224,9 +422,15 @@
   <script>
     let currentOrders = [];
 
-    function renderAdminOrders() {
-      currentOrders = JSON.parse(localStorage.getItem('prijo_all_orders')) || [];
+    async function renderAdminOrders() {
       const tbody = document.getElementById('admin-table-body');
+      tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Loading orders...</p></div></td></tr>';
+      
+      try {
+        currentOrders = await FireDB.getAllOrders();
+      } catch (e) {
+        currentOrders = [];
+      }
       
       if (currentOrders.length === 0) {
         tbody.innerHTML = `<tr><td colspan="7">
@@ -238,28 +442,23 @@
         return;
       }
 
-      // Sort newest first
-      const reversedOrders = [...currentOrders].reverse();
-
-      tbody.innerHTML = reversedOrders.map((order, i) => {
+      tbody.innerHTML = currentOrders.map((order, i) => {
         const orderDate = new Date(order.date || Date.now()).toLocaleDateString('en-IN', {
           day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit'
         });
-        
-        const originalIndex = currentOrders.length - 1 - i;
 
         return `
           <tr>
             <td style="font-weight: 600; color: var(--color-accent);">${order.orderId}</td>
             <td style="color: var(--color-text-muted);">${orderDate}</td>
             <td>
-              <div style="font-weight: 600; color: var(--color-text-dark);">${order.name}</div>
+              <div style="font-weight: 600; color: var(--color-text-light);">${order.name}</div>
               <div style="font-size: 12px; color: var(--color-text-muted);">${order.email}</div>
             </td>
-            <td style="font-weight: 600; color: var(--color-text-dark);">₹${order.total}</td>
+            <td style="font-weight: 600; color: var(--color-text-light);">₹${order.total}</td>
             <td><span style="background: rgba(201, 169, 110, 0.1); color: var(--color-accent); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">${(order.paymentMethod || 'UPI').toUpperCase()}</span></td>
             <td>
-              <select class="status-select" onchange="updateOrderStatus(${originalIndex}, this.value)">
+              <select class="status-select" onchange="updateOrderStatus('${order._docId}', this.value)">
                 <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
                 <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
                 <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
@@ -267,25 +466,19 @@
               </select>
             </td>
             <td>
-               <button class="view-btn" onclick="openModal(${originalIndex})">View Items</button>
+               <button class="view-btn" onclick="openModal(${i})">View Items</button>
             </td>
           </tr>
         `;
       }).join('');
     }
 
-    function updateOrderStatus(index, newStatus) {
-      if (currentOrders[index]) {
-        currentOrders[index].status = newStatus;
-        localStorage.setItem('prijo_all_orders', JSON.stringify(currentOrders));
-      }
+    async function updateOrderStatus(docId, newStatus) {
+      await FireDB.updateOrderStatus(docId, newStatus);
     }
 
-    function clearOrders() {
-      if(confirm('Are you sure you want to clear all order data from local storage? This cannot be undone.')) {
-        localStorage.removeItem('prijo_all_orders');
-        renderAdminOrders();
-      }
+    function clearData() {
+      alert('Cloud data cannot be bulk-cleared from the frontend for safety. Delete individual items instead.');
     }
 
     function openModal(index) {
@@ -304,7 +497,7 @@
               <h4>${item.name}</h4>
               <p>Size: ${item.size}</p>
               <p>Qty: ${item.qty}</p>
-              <p style="font-weight:600; color:var(--color-text-dark); margin-top:4px;">₹${item.price}</p>
+              <p style="font-weight:600; color:var(--color-text-light); margin-top:4px;">₹${item.price}</p>
             </div>
           </div>
         `).join('');
@@ -317,13 +510,173 @@
       document.getElementById('items-modal').classList.remove('active');
     }
     
-    // Close modal if clicking outside
     document.getElementById('items-modal').addEventListener('click', function(e) {
       if(e.target === this) closeModal();
     });
 
+    /* =========================================================
+       TAB & PRODUCT LOGIC
+       ========================================================= */
+    function switchTab(e, tabId) {
+      document.querySelectorAll('.admin-tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      if (e && e.target) {
+        e.target.classList.add('active');
+      }
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+    }
+
+    let base64Image = '';
+
+    function previewImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          base64Image = e.target.result;
+          const preview = document.getElementById('image-preview');
+          preview.src = base64Image;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    /* SUB-CATEGORY LOGIC */
+    const defaultSubCategories = {
+      mens: ['T-Shirts', 'Shirts', 'Pants', 'Hoodies'],
+      womens: ['T-Shirts', 'Tops', 'Dresses', 'Pants'],
+      accessories: ['Caps', 'Bags', 'Jewelry']
+    };
+
+    let cachedCustomSubCats = {};
+
+    async function loadCustomSubCategories() {
+      try {
+        cachedCustomSubCats = await FireDB.getSubCategories();
+      } catch (e) {
+        cachedCustomSubCats = {};
+      }
+    }
+
+    function updateSubCategories() {
+      const mainCat = document.getElementById('product-category').value;
+      const subCatSelect = document.getElementById('product-sub-category');
+      
+      const availableSubCats = [...(defaultSubCategories[mainCat] || []), ...(cachedCustomSubCats[mainCat] || [])];
+      
+      subCatSelect.innerHTML = availableSubCats.map(sc => `<option value="${sc.toLowerCase()}">${sc}</option>`).join('');
+    }
+
+    async function promptNewSubCategory() {
+      const mainCat = document.getElementById('product-category').value;
+      const newSub = prompt(`Enter new sub-category for ${mainCat.toUpperCase()}:`);
+      
+      if (newSub && newSub.trim()) {
+        if (!cachedCustomSubCats[mainCat]) cachedCustomSubCats[mainCat] = [];
+        
+        const formatted = newSub.trim();
+        const allCurrent = [...(defaultSubCategories[mainCat] || []), ...cachedCustomSubCats[mainCat]];
+        if (!allCurrent.some(sc => sc.toLowerCase() === formatted.toLowerCase())) {
+          cachedCustomSubCats[mainCat].push(formatted);
+          await FireDB.saveSubCategories(cachedCustomSubCats);
+          updateSubCategories();
+          
+          document.getElementById('product-sub-category').value = formatted.toLowerCase();
+        } else {
+          alert('Sub-category already exists!');
+        }
+      }
+    }
+
+    async function handleAddProduct(event) {
+      event.preventDefault();
+      
+      if (!base64Image) {
+        alert('Please select a valid image.');
+        return;
+      }
+
+      const newId = Date.now();
+
+      const newProduct = {
+        id: newId,
+        name: document.getElementById('product-name').value.trim(),
+        price: parseInt(document.getElementById('product-price').value),
+        originalPrice: document.getElementById('product-original-price').value ? parseInt(document.getElementById('product-original-price').value) : null,
+        category: document.getElementById('product-category').value,
+        subCategory: document.getElementById('product-sub-category').value,
+        badge: document.getElementById('product-badge').value || null,
+        image: base64Image,
+        hoverImage: base64Image,
+        description: document.getElementById('product-desc').value.trim(),
+        sizes: ["S","M","L","XL"],
+        colors: ["#1a1a1a"],
+        rating: 5.0,
+        reviews: 0
+      };
+
+      const docId = await FireDB.addProduct(newProduct);
+      
+      if (docId) {
+        alert('Product added successfully! It is now live on the shop for ALL customers.');
+      } else {
+        alert('Error adding product. Check your internet connection.');
+      }
+      
+      document.getElementById('add-product-form').reset();
+      document.getElementById('image-preview').style.display = 'none';
+      base64Image = '';
+      
+      renderCustomProducts();
+    }
+
+    async function renderCustomProducts() {
+      const tbody = document.getElementById('custom-products-body');
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><p>Loading products...</p></div></td></tr>';
+
+      const customProducts = await FireDB.getCustomProducts();
+      
+      if (customProducts.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5">
+          <div class="empty-state">
+            <p>No custom products added yet.</p>
+          </div>
+        </td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = customProducts.map((product) => {
+        return `
+          <tr>
+            <td><img src="${product.image}" style="width: 40px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
+            <td style="font-weight: 600;">${product.name}</td>
+            <td style="font-weight: 600;">₹${product.price}</td>
+            <td style="text-transform: capitalize;">${product.category} > ${product.subCategory || 'all'}</td>
+            <td>
+               <button onclick="deleteCustomProduct('${product._docId}')" style="background:#ff4d4f; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-size:11px; cursor:pointer;">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function deleteCustomProduct(docId) {
+      if(confirm('Are you sure you want to delete this product?')) {
+        await FireDB.deleteProduct(docId);
+        renderCustomProducts();
+      }
+    }
+
     // Init
-    renderAdminOrders();
+    async function initAdmin() {
+      await loadCustomSubCategories();
+      updateSubCategories();
+      renderAdminOrders();
+      renderCustomProducts();
+    }
+    initAdmin();
   </script>
 </body>
 </html>

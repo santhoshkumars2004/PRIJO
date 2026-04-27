@@ -4,7 +4,7 @@
    ============================================================ */
 
 /* ---------- PRODUCT DATA ---------- */
-const products = [
+let products = [
   { id: 1, name: "TOKYO OVERSIZED TEE", price: 899, originalPrice: 1499, category: "mens", badge: "SALE",
     image: "assets/images/product_tshirt_black.png", hoverImage: "assets/images/product_tshirt_black.png",
     description: "Premium cotton oversized tee with dropped shoulders and a relaxed fit. Perfect for layering or wearing solo.",
@@ -70,6 +70,29 @@ const products = [
     description: "Comfortable above-the-knee shorts in brushed cotton. Side seam pockets and drawstring waist.",
     sizes: ["S","M","L","XL","XXL"], colors: ["#1a1a1a","#d4c5a9","#5c6b4f"], rating: 4.2, reviews: 134 },
 ];
+// Merge custom products from Firebase Firestore (async)
+async function loadCustomProductsFromFirebase() {
+  try {
+    if (typeof FireDB !== 'undefined') {
+      const customProducts = await FireDB.getCustomProducts();
+      if (customProducts.length > 0) {
+        products = [...customProducts, ...products];
+      }
+    }
+  } catch (e) {
+    console.error("Failed to load custom products from Firebase", e);
+  }
+}
+
+// Fallback: also check localStorage for backwards compatibility
+try {
+  const localCustomProducts = JSON.parse(localStorage.getItem('prijo_custom_products')) || [];
+  if (localCustomProducts.length > 0) {
+    products = [...localCustomProducts, ...products];
+  }
+} catch (e) {
+  console.error("Failed to load custom products from localStorage", e);
+}
 
 /* ---------- HELPER: Get product by ID ---------- */
 function getProductById(id) {
@@ -447,6 +470,15 @@ function initShopPage() {
   const grid = document.getElementById('shop-products-grid');
   if (!grid) return;
 
+  // Load Firebase products first, then render
+  loadCustomProductsFromFirebase().then(() => {
+    _renderShopPage();
+  }).catch(() => {
+    _renderShopPage(); // Render even if Firebase fails
+  });
+}
+
+function _renderShopPage() {
   // Check URL params for initial filter
   const catParam = getUrlParam('cat');
   let filteredProducts = [...products];
@@ -459,6 +491,7 @@ function initShopPage() {
     });
   }
 
+  renderSubCategories(catParam || 'all');
   renderShopProducts(filteredProducts);
 
   // Filter buttons
@@ -469,9 +502,54 @@ function initShopPage() {
 
       const cat = btn.dataset.category;
       const filtered = cat === 'all' ? products : products.filter(p => p.category === cat);
+      
+      renderSubCategories(cat);
       renderShopProducts(filtered);
     });
   });
+
+  function renderSubCategories(mainCat) {
+    const subContainer = document.getElementById('sub-filter-container');
+    if (!subContainer) return;
+
+    if (mainCat === 'all' || mainCat === 'new') {
+      subContainer.innerHTML = '';
+      return;
+    }
+
+    const catProducts = products.filter(p => p.category === mainCat);
+    const subCats = new Set();
+    catProducts.forEach(p => {
+      if (p.subCategory) subCats.add(p.subCategory.toLowerCase());
+    });
+
+    if (subCats.size === 0) {
+      subContainer.innerHTML = '';
+      return;
+    }
+
+    let html = `<button class="sub-filter-btn active" data-sub="all">All</button>`;
+    Array.from(subCats).sort().forEach(sc => {
+      html += `<button class="sub-filter-btn" style="text-transform: capitalize;" data-sub="${sc}">${sc}</button>`;
+    });
+
+    subContainer.innerHTML = html;
+
+    // Add events
+    subContainer.querySelectorAll('.sub-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        subContainer.querySelectorAll('.sub-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const sub = btn.dataset.sub;
+        let subFiltered = catProducts;
+        if (sub !== 'all') {
+          subFiltered = catProducts.filter(p => p.subCategory && p.subCategory.toLowerCase() === sub);
+        }
+        renderShopProducts(subFiltered);
+      });
+    });
+  }
 
   // Sort
   const sortSelect = document.getElementById('sort-select');
@@ -782,31 +860,80 @@ function initCheckoutPage() {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (validateCheckoutForm()) {
-      // Save order details to sessionStorage
-      const orderData = {
-        orderId: generateOrderId(),
-        name: document.getElementById('checkout-name')?.value || '',
-        email: document.getElementById('checkout-email')?.value || '',
-        items: Cart.getItems(),
-        total: Cart.getTotal(),
-        address: document.getElementById('checkout-address1')?.value || '',
-        city: document.getElementById('checkout-city')?.value || '',
-        state: document.getElementById('checkout-state')?.value || '',
-        pincode: document.getElementById('checkout-pincode')?.value || ''
-      };
       
-      // Save globally for Admin and Tracking
-      const allOrders = JSON.parse(localStorage.getItem('prijo_all_orders')) || [];
-      // Add current date and default 'Processing' status
-      orderData.date = new Date().toISOString();
-      orderData.status = 'Processing';
-      orderData.paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || 'Online';
-      allOrders.push(orderData);
-      localStorage.setItem('prijo_all_orders', JSON.stringify(allOrders));
+      const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || 'online';
+      
+      const processOrder = (method) => {
+        // Save order details to sessionStorage
+        const orderData = {
+          orderId: generateOrderId(),
+          name: document.getElementById('checkout-name')?.value || '',
+          email: document.getElementById('checkout-email')?.value || '',
+          items: Cart.getItems(),
+          total: Cart.getTotal(),
+          address: document.getElementById('checkout-address1')?.value || '',
+          city: document.getElementById('checkout-city')?.value || '',
+          state: document.getElementById('checkout-state')?.value || '',
+          pincode: document.getElementById('checkout-pincode')?.value || ''
+        };
+        
+        // Save globally for Admin and Tracking
+        const allOrders = JSON.parse(localStorage.getItem('prijo_all_orders')) || [];
+        orderData.date = new Date().toISOString();
+        orderData.status = 'Processing';
+        orderData.paymentMethod = method;
+        allOrders.push(orderData);
+        localStorage.setItem('prijo_all_orders', JSON.stringify(allOrders));
 
-      sessionStorage.setItem('prijo_last_order', JSON.stringify(orderData));
-      Cart.clear();
-      window.location.href = 'payment.html';
+        // Also save to Firebase Firestore for cross-device sync
+        if (typeof FireDB !== 'undefined') {
+          FireDB.addOrder(orderData).catch(e => console.error('Firebase order save failed:', e));
+        }
+
+        sessionStorage.setItem('prijo_last_order', JSON.stringify(orderData));
+        Cart.clear();
+        window.location.href = 'payment.html';
+      };
+
+      if (paymentMethod === 'online') {
+        // Razorpay Integration
+        const options = {
+            "key": "rzp_live_Si7V4YOhPYbiXa", // Using the live API key provided
+            "amount": Math.round(Cart.getTotal() * 100), // Amount is in currency subunits (paise)
+            "currency": "INR",
+            "name": "PRIJO",
+            "description": "Order Payment",
+            "image": "https://dummyimage.com/150x150/000/fff&text=PRIJO",
+            "handler": function (response) {
+                // Payment was successful!
+                showToast('Payment successful! Verifying securely...');
+                setTimeout(() => {
+                  processOrder('Online (Razorpay)');
+                }, 1000);
+            },
+            "prefill": {
+                "name": document.getElementById('checkout-name')?.value || '',
+                "email": document.getElementById('checkout-email')?.value || '',
+                "contact": document.getElementById('checkout-phone')?.value || ''
+            },
+            "theme": {
+                "color": "#111111"
+            }
+        };
+        
+        if(window.Razorpay) {
+          const rzp1 = new window.Razorpay(options);
+          rzp1.on('payment.failed', function (response){
+              showToast('Payment Failed. Please try again.');
+          });
+          rzp1.open();
+        } else {
+          showToast('Payment gateway failed to load. Check connection.');
+        }
+      } else {
+        // Cash on Delivery
+        processOrder('Cash on Delivery');
+      }
     }
   });
 }

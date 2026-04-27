@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login — PRIJO</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/img/icon-192.png">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=5">
+  <style>
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: var(--font-body);
+    }
+    .login-container {
+      background: var(--color-bg-light);
+      padding: 50px 40px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--color-border);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .login-logo {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--color-text-light);
+      margin-bottom: 8px;
+    }
+    .login-subtitle {
+      font-size: 14px;
+      color: var(--color-text-muted);
+      margin-bottom: 40px;
+    }
+    .form-group {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-light);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      font-family: var(--font-body);
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-size: 16px;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+    .form-group input:focus {
+      border-color: var(--color-accent);
+      outline: none;
+    }
+    .login-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--color-accent);
+      color: var(--color-bg-dark);
+      border: none;
+      border-radius: 6px;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+      margin-top: 8px;
+    }
+    .login-btn:hover {
+      opacity: 0.8;
+    }
+    .login-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .error-msg {
+      color: #ff4d4f;
+      font-size: 13px;
+      margin-top: 16px;
+      display: none;
+    }
+    .success-msg {
+      color: #52c41a;
+      font-size: 13px;
+      margin-top: 16px;
+      display: none;
+    }
+    .forgot-link {
+      display: inline-block;
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      text-decoration: underline;
+      transition: color 0.2s ease;
+    }
+    .forgot-link:hover {
+      color: var(--color-text-light);
+    }
+    .view-login, .view-forgot {
+      display: none;
+    }
+    .view-login.active, .view-forgot.active {
+      display: block;
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .back-link:hover {
+      color: var(--color-text-light);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="login-logo">PRIJO</div>
+    <div class="login-subtitle">SECURE ADMIN PORTAL</div>
+
+    <!-- LOGIN VIEW -->
+    <div id="login-view" class="view-login active">
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="login-email" placeholder="admin@prijo.com" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="login-password" placeholder="Enter password" required>
+        </div>
+        <button type="submit" class="login-btn" id="login-btn">LOGIN</button>
+        <div id="login-error" class="error-msg"></div>
+      </form>
+      <span class="forgot-link" onclick="showForgotView()">Forgot Password?</span>
+    </div>
+
+    <!-- FORGOT PASSWORD VIEW -->
+    <div id="forgot-view" class="view-forgot">
+      <form id="forgot-form" onsubmit="handleForgotPassword(event)">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="forgot-email" placeholder="Enter your admin email" required>
+        </div>
+        <button type="submit" class="login-btn" id="forgot-btn">SEND RESET LINK</button>
+        <div id="forgot-error" class="error-msg"></div>
+        <div id="forgot-success" class="success-msg"></div>
+      </form>
+      <span class="back-link" onclick="showLoginView()">← Back to Login</span>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script>
+    // Firebase Config
+    firebase.initializeApp({
+      apiKey: "AIzaSyAUrHa_oYFnKH-kwBXO2w5kVYpEcIRWxOw",
+      authDomain: "prijo-60f29.firebaseapp.com",
+      projectId: "prijo-60f29",
+      storageBucket: "prijo-60f29.firebasestorage.app",
+      messagingSenderId: "181331902685",
+      appId: "1:181331902685:web:e270698b49a346a3695b34"
+    });
+
+    const auth = firebase.auth();
+
+    // If already logged in, redirect
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        window.location.href = 'admin.html';
+      }
+    });
+
+    // --- VIEW SWITCHING ---
+    function showForgotView() {
+      document.getElementById('login-view').classList.remove('active');
+      document.getElementById('forgot-view').classList.add('active');
+      document.getElementById('forgot-error').style.display = 'none';
+      document.getElementById('forgot-success').style.display = 'none';
+    }
+
+    function showLoginView() {
+      document.getElementById('forgot-view').classList.remove('active');
+      document.getElementById('login-view').classList.add('active');
+      document.getElementById('login-error').style.display = 'none';
+    }
+
+    // --- LOGIN ---
+    async function handleLogin(event) {
+      event.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errorEl = document.getElementById('login-error');
+      const btn = document.getElementById('login-btn');
+
+      errorEl.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'LOGGING IN...';
+
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        // onAuthStateChanged will handle the redirect
+      } catch (error) {
+        let message = 'Login failed. Please try again.';
+        if (error.code === 'auth/user-not-found') {
+          message = 'No account found with this email.';
+        } else if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+          message = 'Incorrect password. Please try again.';
+        } else if (error.code === 'auth/invalid-email') {
+          message = 'Please enter a valid email address.';
+        } else if (error.code === 'auth/too-many-requests') {
+          message = 'Too many attempts. Please wait and try again.';
+        }
+        errorEl.textContent = message;
+        errorEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'LOGIN';
+      }
+    }
+
+    // --- FORGOT PASSWORD ---
+    async function handleForgotPassword(event) {
+      event.preventDefault();
+      const email = document.getElementById('forgot-email').value.trim();
+      const errorEl = document.getElementById('forgot-error');
+      const successEl = document.getElementById('forgot-success');
+      const btn = document.getElementById('forgot-btn');
+
+      errorEl.style.display = 'none';
+      successEl.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'SENDING...';
+
+      try {
+        await auth.sendPasswordResetEmail(email);
+        successEl.textContent = 'Password reset link sent! Check your email inbox.';
+        successEl.style.display = 'block';
+      } catch (error) {
+        let message = 'Failed to send reset email.';
+        if (error.code === 'auth/user-not-found') {
+          message = 'No account found with this email.';
+        } else if (error.code === 'auth/invalid-email') {
+          message = 'Please enter a valid email address.';
+        }
+        errorEl.textContent = message;
+        errorEl.style.display = 'block';
+      }
+      btn.disabled = false;
+      btn.textContent = 'SEND RESET LINK';
+    }
+
+    // --- SERVICE WORKER ---
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+  </script>
+</body>
+</html>
