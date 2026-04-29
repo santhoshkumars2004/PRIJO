@@ -606,6 +606,15 @@ function initProductPage() {
   const productId = getUrlParam('id');
   if (!productId) { window.location.href = 'shop.html'; return; }
 
+  // Load Firebase products first, then render
+  loadCustomProductsFromFirebase().then(() => {
+    _renderProductPage(productId);
+  }).catch(() => {
+    _renderProductPage(productId);
+  });
+}
+
+function _renderProductPage(productId) {
   const product = getProductById(productId);
   if (!product) { window.location.href = 'shop.html'; return; }
 
