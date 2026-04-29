@@ -374,6 +374,18 @@
               </select>
             </div>
             <div class="form-group full">
+              <label>Available Sizes</label>
+              <div id="size-checkboxes" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px;">
+                <label style="display:flex; align-items:center; gap:4px; font-size:14px; font-weight:500; cursor:pointer; text-transform:none; letter-spacing:0;"><input type="checkbox" value="XS" class="size-check"> XS</label>
+                <label style="display:flex; align-items:center; gap:4px; font-size:14px; font-weight:500; cursor:pointer; text-transform:none; letter-spacing:0;"><input type="checkbox" value="S" class="size-check" checked> S</label>
+                <label style="display:flex; align-items:center; gap:4px; font-size:14px; font-weight:500; cursor:pointer; text-transform:none; letter-spacing:0;"><input type="checkbox" value="M" class="size-check" checked> M</label>
+                <label style="display:flex; align-items:center; gap:4px; font-size:14px; font-weight:500; cursor:pointer; text-transform:none; letter-spacing:0;"><input type="checkbox" value="L" class="size-check" checked> L</label>
+                <label style="display:flex; align-items:center; gap:4px; font-size:14px; font-weight:500; cursor:pointer; text-transform:none; letter-spacing:0;"><input type="checkbox" value="XL" class="size-check" checked> XL</label>
+                <label style="display:flex; align-items:center; gap:4px; font-size:14px; font-weight:500; cursor:pointer; text-transform:none; letter-spacing:0;"><input type="checkbox" value="XXL" class="size-check"> XXL</label>
+                <label style="display:flex; align-items:center; gap:4px; font-size:14px; font-weight:500; cursor:pointer; text-transform:none; letter-spacing:0;"><input type="checkbox" value="XXXL" class="size-check"> XXXL</label>
+              </div>
+            </div>
+            <div class="form-group full">
               <label>Description</label>
               <textarea id="product-desc" required placeholder="Describe the product..."></textarea>
             </div>
@@ -598,6 +610,12 @@
         return;
       }
 
+      const selectedSizes = Array.from(document.querySelectorAll('.size-check:checked')).map(cb => cb.value);
+      if (selectedSizes.length === 0) {
+        alert('Please select at least one size.');
+        return;
+      }
+
       const newId = Date.now();
 
       const newProduct = {
@@ -611,7 +629,7 @@
         image: base64Image,
         hoverImage: base64Image,
         description: document.getElementById('product-desc').value.trim(),
-        sizes: ["S","M","L","XL"],
+        sizes: Array.from(document.querySelectorAll('.size-check:checked')).map(cb => cb.value),
         colors: ["#1a1a1a"],
         rating: 5.0,
         reviews: 0
